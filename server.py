@@ -2,7 +2,6 @@
 
 import tornado.httpserver
 import tornado.ioloop
-#import tornado.options
 import tornado.web
 import tornado.websocket
 import tornado.gen
@@ -28,10 +27,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         #self.ard = arduino.Arduino()
 
     def on_message(self, message):
-        print 'message received %s' % message
+        print 'tornado received from client: %s' % message
         #self.write_message('message received %s' % message)
         for c in clients:
-            c.write_message('message received %s' % message)
+            c.write_message('client received from tornado: %s' % message)
         q = self.application.settings.get('queue')
         q.put(message)
         #self.arduino.sendData()
