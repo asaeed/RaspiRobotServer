@@ -9,7 +9,7 @@ from tornado.options import define, options
 
 import time
 import multiprocessing
-import arduino
+import serialProcess
 
 define("port", default=8080, help="run on the given port", type=int)
 
@@ -24,16 +24,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         print 'new connection'
         clients.append(self)
         self.write_message("connected")
-        #self.ard = arduino.Arduino()
 
     def on_message(self, message):
         print 'tornado received from client: %s' % message
-        #self.write_message('message received %s' % message)
-        for c in clients:
-            c.write_message('client received from tornado: %s' % message)
+        self.write_message('got it!')
         q = self.application.settings.get('queue')
         q.put(message)
-        #self.arduino.sendData()
 
     def on_close(self):
         print 'connection closed'
@@ -46,10 +42,11 @@ def main():
     taskQ = multiprocessing.Queue()
     resultQ = multiprocessing.Queue()
 
-    ard = arduino.Arduino(taskQ, resultQ)
-    ard.daemon = True
-    ard.start()
+    sp = serialProcess.SerialProcess(taskQ, resultQ)
+    sp.daemon = True
+    sp.start()
 
+    time.sleep(2)
     taskQ.put("first task")
 
     tornado.options.parse_command_line()
@@ -65,10 +62,11 @@ def main():
     #tornado.ioloop.IOLoop.instance().start()
     
     def checkResults():
-        #print "one 2nd..."
         if not resultQ.empty():
             result = resultQ.get()
             print "tornado received from arduino: " + result
+            for c in clients:
+                c.write_message(result)
         
     mainLoop = tornado.ioloop.IOLoop.instance()
     scheduler = tornado.ioloop.PeriodicCallback(checkResults, 10, io_loop = mainLoop)
