@@ -50,7 +50,7 @@
         circle.on("mousedown", function() {
           value = value + 20;
           console.log('sending: ' + value);
-          sendMessage("{\"value\":" + value + "}");
+          sendMessage("{\"value\":" + value + ".00}");
         });
 
         layer.add(circle);
