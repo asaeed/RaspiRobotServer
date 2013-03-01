@@ -18,7 +18,6 @@
 
 #define neckMotorPin 7 // pwm only?
 
-
 MotorDriver leftMotor = MotorDriver(motorAIN1, motorAIN2, motorAPWM);
 MotorDriver rightMotor = MotorDriver(motorBIN1, motorBIN2, motorBPWM);
 HMC5883L compass = HMC5883L();
@@ -57,7 +56,9 @@ void receiveData() {
   Serial.println(msgArray);
   aJsonObject* root = aJson.parse(msgArray);
   aJsonObject* value = aJson.getObjectItem(root, "value");
-  Serial.println(value->valuestring);
+  neckAngle = value->valuefloat;
+  Serial.println(neckAngle);
+  neckMotor.write(neckAngle);
 }
 
 void sendData() {
