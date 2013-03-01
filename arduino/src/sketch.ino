@@ -1,4 +1,6 @@
 
+#include <aJSON.h>
+
 #define LED_PIN 13
 
 int msgByte= -1;         // incoming byte
