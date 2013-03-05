@@ -33,7 +33,7 @@
       window.onload = function() {
         var stage = new Kinetic.Stage({
           container: "container",
-          width: 610,
+          width: 600,
           height: 400
         });
 
@@ -66,8 +66,8 @@
           y: 0,
           width: sliderW,
           height: sliderH,
-          strokeWidth: 1,
-          cornerRadius: 20
+          //strokeWidth: 1,
+          //cornerRadius: 20
         });
 
         var line = new Kinetic.Line({
@@ -116,8 +116,8 @@
           var r = g.getChildren()[2];
 
           var newPos = {x: pos.x - g.getX() - knobW/2, y: r.getY()};
-          console.log(newPos);
-          console.log(b.getWidth());
+          //console.log(newPos);
+
           if (newPos.x < 0) newPos.x = 0;
           if (newPos.x > b.getWidth() - knobW) newPos.x = b.getWidth() - knobW;
 
@@ -127,15 +127,11 @@
             duration: .1
           });
           stage.draw();
-          console.log(b.getWidth());
+
           var value =  Math.round(map(newPos.x, 0, b.getWidth() - knobW, 0, 180));
           console.log('sending: ' + value);
           sendMessage(value);
         });
-
-        //slider.on("mouseup touchend", function() {
-        //  mousePressed = false;
-        //});
 
         layer.add(slider);
         layer.add(textTitle);
