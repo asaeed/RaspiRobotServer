@@ -22,11 +22,13 @@
         console.log("disconnected"); 
       };
 
-      sendMessage = function(message) {
-        socket.send(message);
+      var sendMessage = function(value){
+        socket.send("{\"neck\":" + value + ".00}");
       };
 
-      var value = 0.00;
+      var map = function(x, in_min, in_max, out_min, out_max){
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+      };
 
       window.onload = function() {
         var stage = new Kinetic.Stage({
@@ -37,23 +39,106 @@
 
         var layer  = new Kinetic.Layer();
 
-        var circle = new Kinetic.Circle({
-          x: 100,
-          y: 100,
-          radius: 10,
-          fill: "red",
-          stroke: "black",
+        // TITLE
+        var textTitle = new Kinetic.Text(
+          {
+            x: 10,
+            y: 10,
+            text: 'control panel',
+            fontSize: 20,
+            fontFamily: 'Calibri',
+            textFill: 'black'
+          }
+        );
+
+        var sliderW = 512;
+        var sliderH = 40;
+        var knobW = 20;
+
+        slider = new Kinetic.Group({
+          x: stage.getWidth() / 2 - sliderW / 2,
+          y: 50,
+        });
+
+        // this is to expand group click region
+        var back = new Kinetic.Rect({
+          x: 0,
+          y: 0,
+          width: sliderW,
+          height: sliderH,
+          strokeWidth: 1,
+          cornerRadius: 20
+        });
+
+        var line = new Kinetic.Line({
+          points: [0+knobW/2, sliderH/2, sliderW-knobW/2, sliderH/2],
+          stroke: 'red',
+          strokeWidth: 6,
+          lineCap: 'round',
+          lineJoin: 'round'
+        });
+        
+        var rect = new Kinetic.Rect({
+          x: 0,
+          y: 0,
+          width: knobW,
+          height: sliderH,
+          cornerRadius: 4,
+          fill: 'gray',
+          stroke: 'black',
           strokeWidth: 4,
-          draggable: true
+          draggable: true,
+          dragBoundFunc: function(pos) {
+            return boundSlider(this, pos);
+          }
         });
 
-        circle.on("mousedown", function() {
-          value = value + 10;
+        var boundSlider = function(obj, pos) {
+          var minX = obj.parent.getX();
+          var maxX = minX + sliderW - knobW;
+          var newX = pos.x;
+          if (newX < minX) newX = minX;
+          if (newX > maxX) newX = maxX;
+          return {x: newX, y: obj.getAbsolutePosition().y};
+        }
+
+        slider.add(back);
+        slider.add(line);
+        slider.add(rect);
+
+        slider.on("mousedown touchstart dragend", function() {
+          pos = stage.getTouchPosition();
+          if (!pos)
+            pos = stage.getMousePosition();
+          
+          var g = this;
+          var b = g.getChildren()[0];
+          var r = g.getChildren()[2];
+
+          var newPos = {x: pos.x - g.getX() - knobW/2, y: r.getY()};
+          console.log(newPos);
+          console.log(b.getWidth());
+          if (newPos.x < 0) newPos.x = 0;
+          if (newPos.x > b.getWidth() - knobW) newPos.x = b.getWidth() - knobW;
+
+          r.transitionTo({
+            x: newPos.x,
+            y: newPos.y,
+            duration: .1
+          });
+          stage.draw();
+          console.log(b.getWidth());
+          var value =  Math.round(map(newPos.x, 0, b.getWidth() - knobW, 0, 180));
           console.log('sending: ' + value);
-          sendMessage("{\"neck\":" + value + ".00}");
+          sendMessage(value);
         });
 
-        layer.add(circle);
+        //slider.on("mouseup touchend", function() {
+        //  mousePressed = false;
+        //});
+
+        layer.add(slider);
+        layer.add(textTitle);
         stage.add(layer);
       };
 
