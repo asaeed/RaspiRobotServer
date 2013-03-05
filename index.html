@@ -24,7 +24,7 @@
           console.log(obj);
           if (obj.neck) {
             rect.transitionTo({
-              x: map(obj.neck, 0, 180, 0, sliderW),
+              x: map(obj.neck, 0, 180, 0, sliderW - knobW),
               y: 0,
               duration: .1
             });
