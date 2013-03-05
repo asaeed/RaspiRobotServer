@@ -47,7 +47,7 @@ void loop() {
 }
 
 void receiveData() {
-  freeMem("receive start");
+  //freeMem("receive start");
   Serial.println(msgArray);
   aJsonObject* root = aJson.parse(msgArray);
   aJsonObject* neck = aJson.getObjectItem(root, "neck");
@@ -91,14 +91,13 @@ void receiveData() {
   */
   
   aJson.deleteItem(root);
-  freeMem("receive end");
+  //freeMem("receive end");
 }
 
 void sendData() {
-  
   float heading = getHeading();
   
-  freeMem("send start");
+  //freeMem("send start");
   aJsonObject *root = aJson.createObject();
   aJsonObject *neck;
   aJson.addItemToObject(root, "heading",  neck = aJson.createItem(heading)); 
@@ -108,8 +107,7 @@ void sendData() {
   free(json);
   
   aJson.deleteItem(root);
-  freeMem("send end");
-  
+  //freeMem("send end");
 }
 
 void handleSerial() {  
@@ -140,24 +138,20 @@ void handleSerial() {
 }
 
 void setupHMC5883L(){
- int error; 
- error = compass.SetScale(1.3);
- if(error != 0) Serial.println(compass.GetErrorText(error));
- error = compass.SetMeasurementMode(Measurement_Continuous);
- if(error != 0) Serial.println(compass.GetErrorText(error));
+  int error; 
+  error = compass.SetScale(1.3);
+  if(error != 0) Serial.println(compass.GetErrorText(error));
+  error = compass.SetMeasurementMode(Measurement_Continuous);
+  if(error != 0) Serial.println(compass.GetErrorText(error));
 }
 
 float getHeading(){
- freeMem("before getHeading");
- MagnetometerScaled scaled = compass.ReadScaledAxis();
- float heading = atan2(scaled.YAxis, scaled.XAxis);
- if(heading < 0) heading += 2*PI;
- if(heading > 2*PI) heading -= 2*PI;
- freeMem("after getHeading");
- return heading * RAD_TO_DEG;
- 
+  MagnetometerScaled scaled = compass.ReadScaledAxis();
+  float heading = atan2(scaled.YAxis, scaled.XAxis);
+  if(heading < 0) heading += 2*PI;
+  if(heading > 2*PI) heading -= 2*PI;
+  return heading * RAD_TO_DEG;
 }
-
 
 
 //Code to print out the free memory
