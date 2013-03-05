@@ -28,6 +28,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print 'tornado received from client: %s' % message
         #self.write_message('got it!')
+        for c in clients:
+            c.write_message(message)
         q = self.application.settings.get('queue')
         q.put(message)
 
