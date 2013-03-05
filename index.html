@@ -8,29 +8,42 @@
     <script src="http://www.html5canvastutorials.com/libraries/kinetic-v4.2.0.js"></script>
     <script>
       
-      var socket = new WebSocket("ws://raspberrypi:8080/ws");
 
-      socket.onopen = function(){  
-        console.log("connected"); 
-      }; 
-      
-      socket.onmessage = function (message) {
-        console.log("receiving: " + message.data);
-      };
-
-      socket.onclose = function(){
-        console.log("disconnected"); 
-      };
-
-      var sendMessage = function(value){
-        socket.send("{\"neck\":" + value + ".00}");
-      };
-
-      var map = function(x, in_min, in_max, out_min, out_max){
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-      };
 
       window.onload = function() {
+
+        var socket = new WebSocket("ws://raspberrypi:8080/ws");
+
+        socket.onopen = function(){  
+          console.log("connected"); 
+        }; 
+        
+        socket.onmessage = function (message) {
+          console.log("receiving: " + message.data);
+          obj = JSON.parse(message.data);
+          console.log(obj);
+          if (obj.neck) {
+            rect.transitionTo({
+              x: map(obj.neck, 0, 180, 0, sliderW),
+              y: 0,
+              duration: .1
+            });
+          stage.draw();
+          }
+        };
+
+        socket.onclose = function(){
+          console.log("disconnected"); 
+        };
+
+        var sendMessage = function(value){
+          socket.send("{\"neck\":" + value + ".00}");
+        };
+
+        var map = function(x, in_min, in_max, out_min, out_max){
+          return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        };
+
         var stage = new Kinetic.Stage({
           container: "container",
           width: 600,
